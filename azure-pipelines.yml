@@ -9,9 +9,6 @@ trigger:
     include:
     - master
     - SolidCI/*
-  paths:
-    include:
-    - *
  
 pool:
   vmImage: 'Ubuntu-16.04'
