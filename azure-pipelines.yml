@@ -2,8 +2,6 @@
 ## Build pipeline
 #
 
-name: 'SolidCI(Date:yyyyMMdd)$(Rev:.r)'
-
 trigger:
   branches:
     include:
