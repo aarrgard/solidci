@@ -12,10 +12,10 @@ function InvokeWebRequest()
 
     #Write-Host "Got data:$($resp.Content)"
 	$statusCode=$resp.StatusCode
-	if($statusCode -ne 200) {
-		throw "Status code not 200($statusCode)"
+	$acceptedCodes=@(200,203)
+	if(-not $($acceptedCodes).Contains($statusCode)) {
+		throw "Status code not ok ($statusCode). Should be one of $acceptedCodes"
 	}
-
 
     $res=$resp.Content | ConvertFrom-Json
     return $res
