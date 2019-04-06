@@ -65,7 +65,7 @@ if($accountName -eq $null) {
 # setup feed authorization
 #
 if($feed_pat -ne $null) {
-	$feed_authorization="Basic $([System.Convert]::FromBase64String(":$feed_pat"))"
+	$feed_authorization="Basic $([System.Convert]::ToBase64String(":$feed_pat"))"
 }
 if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
 	$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"

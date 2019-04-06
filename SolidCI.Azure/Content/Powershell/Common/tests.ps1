@@ -23,15 +23,3 @@ $csProjFiles=FindCsprojFiles "$PSScriptRoot\..\..\.."
 AssertAreEqual 1 $csProjFiles.Count
 AssertAreEqual "SolidCI.Azure" $(GetCsprojPackageName $csProjFiles[0])
 
-$feed_authorization=$null
-if($feed_pat -ne $null) {
-	$feed_authorization="Basic $([System.Convert]::FromBase64String(":$feed_pat"))"
-}
-if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
-	$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
-}
-if($feed_authorization -eq $null) {
-	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
-}
-Set-variable -Name "FEED_AUTHORIZATION" -Value $feed_authorization -Scope Global 
-$FEED_AUTHORIZATION
