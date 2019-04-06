@@ -22,4 +22,3 @@ AssertAreEqual (GetVersionFromVersionRange "xxx") $null
 $csProjFiles=FindCsprojFiles "$PSScriptRoot\..\..\.."
 AssertAreEqual 1 $csProjFiles.Count
 AssertAreEqual "SolidCI.Azure" $(GetCsprojPackageName $csProjFiles[0])
-
