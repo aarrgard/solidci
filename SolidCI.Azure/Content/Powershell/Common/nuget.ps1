@@ -4,7 +4,7 @@
 #
 if($($env:FEED_PAT) -ne $null) {
 	Write-Host "Using basic authorization to access feeds - using PAT"
-	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$feed_pat")))"
+	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($env:FEED_PAT)")))"
 } else {
 	if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
 		Write-Host "Using bearer authorization to access feeds - using system accesstoken"
