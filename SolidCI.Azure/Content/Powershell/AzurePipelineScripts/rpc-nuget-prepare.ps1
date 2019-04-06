@@ -65,10 +65,13 @@ if($accountName -eq $null) {
 # setup feed authorization
 #
 if($feed_pat -ne $null) {
+	Write-Host "Using basic authorization to access feeds"
 	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$feed_pat")))"
-}
-if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
-	$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
+} else {
+	if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
+		Write-Host "Using bearer authorization to access feeds"
+		$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
+	}
 }
 if($feed_authorization -eq $null) {
 	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
