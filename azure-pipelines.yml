@@ -18,7 +18,7 @@ variables:
   #accountName: 'andreas0539'
   #prereleasedFeed: 'Prerelease'
   #releasedFeed: 'Released'
-  feedId: ''
+  feedAccessToken: 'asjobxtasu7fubu5mryswxpsbmi7utakojoxmtzism6vlu3rkvnq'
 
 steps:
 
@@ -47,6 +47,7 @@ steps:
     #releasedFeed: $(releasedFeed)
     projectFolder: $(projectFolder)
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    FEED_ACCESSTOKEN: $(feedAccessToken)
         
 #
 # Build stuff

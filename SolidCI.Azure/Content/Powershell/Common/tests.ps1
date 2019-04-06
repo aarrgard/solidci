@@ -22,12 +22,3 @@ AssertAreEqual (GetVersionFromVersionRange "xxx") $null
 $csProjFiles=FindCsprojFiles "$PSScriptRoot\..\..\.."
 AssertAreEqual 1 $csProjFiles.Count
 AssertAreEqual "SolidCI.Azure" $(GetCsprojPackageName $csProjFiles[0])
-
-
-$system_teamfoundationserveruri="https://dev.azure.com/andreas05dsdf39/"
-	if($($system_teamfoundationserveruri -match "^.+//.+/([^/]+)/$") -eq $True) 
-{
-	$accountName = $Matches[1]
-}
-
-$accountName

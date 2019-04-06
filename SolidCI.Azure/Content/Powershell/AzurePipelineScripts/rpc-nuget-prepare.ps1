@@ -14,8 +14,7 @@ $projectFolder=$env:projectFolder
 $releasedFeed=$env:releasedFeed
 $prereleasedFeed=$env:prereleasedFeed
 $system_teamfoundationserveruri=$env:SYSTEM_TEAMFOUNDATIONSERVERURI
-$system_accesstoken=$env:SYSTEM_ACCESSTOKEN
-$nugetServiceConnection=$env:nugetServiceConnection
+$feed_accesstoken=$env:FEED_ACCESSTOKEN
 
 Get-ChildItem Env:
 
@@ -61,6 +60,13 @@ if($accountName -eq $null) {
 	    $accountName = $Matches[1]
     }
 }
+if($feed_accesstoken -eq $null) {
+	$feed_accesstoken=$env:SYSTEM_ACCESSTOKEN
+}
+if($feed_accesstoken -eq $null) {
+	throw "Cannot determine feed access token. Please set the FEED_ACCESSTOKEN environment variable"
+}
+Set-variable -Name "FEED_ACCESSTOKEN" -Value $feed_accesstoken -Scope Global 
 
 
 if($releasebuild -ieq "true") {
