@@ -17,7 +17,7 @@ variables:
   powershellFolder: $(projectFolder)/SolidCI.Azure/Content/Powershell
   #accountName: 'andreas0539'
   #prereleasedFeed: 'Prerelease'
-  #releasedFeed: 'Released'
+  #releasedFeed: 'Released' 
 
 steps:
 
@@ -46,7 +46,6 @@ steps:
     #releasedFeed: $(releasedFeed)
     projectFolder: $(projectFolder)
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-    FEED_PAT: $(feedPat)
         
 #
 # Build stuff

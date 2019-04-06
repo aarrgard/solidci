@@ -2,7 +2,7 @@
 #
 # setup feed authorization
 #
-if($($env:FEED_PAT) -ne $null) {
+if("$($env:FEED_PAT)" -ne "") {
 	Write-Host "Using basic authorization to access feeds - using PAT"
 	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($env:FEED_PAT)")))"
 } else {
