@@ -12,6 +12,7 @@ if("$($env:FEED_PAT)" -ne "") {
 	}
 }
 if($feed_authorization -eq $null) {
+	Get-ChildItem Env:
 	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
 }
 Set-variable -Name "FEED_AUTHORIZATION" -Value $feed_authorization -Scope Global 
