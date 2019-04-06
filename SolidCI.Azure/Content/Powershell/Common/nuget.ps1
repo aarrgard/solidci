@@ -7,7 +7,7 @@ function InvokeWebRequest()
     Write-Host "Getting data from $uri ..."
 
     $resp=Invoke-WebRequest -Uri $uri -Headers @{
-		"Authorization"="Bearer $feed_accesstoken"
+		"Authorization"=FEED_AUTHORIZATION
 	} -UseBasicParsing
 
     #Write-Host "Got data:$($resp.Content)"
