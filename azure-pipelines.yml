@@ -45,7 +45,7 @@ steps:
     #prereleasedFeed: $(prereleasedFeed)
     #releasedFeed: $(releasedFeed)
     projectFolder: $(projectFolder)
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    #SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         
 #
 # Build stuff
