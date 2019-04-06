@@ -14,7 +14,6 @@ $projectFolder=$env:projectFolder
 $releasedFeed=$env:releasedFeed
 $prereleasedFeed=$env:prereleasedFeed
 $system_teamfoundationserveruri=$env:SYSTEM_TEAMFOUNDATIONSERVERURI
-$feed_pat=$env:FEED_PAT
 
 Get-ChildItem Env:
 
@@ -60,24 +59,6 @@ if($accountName -eq $null) {
 	    $accountName = $Matches[1]
     }
 }
-
-#
-# setup feed authorization
-#
-if($feed_pat -ne $null) {
-	Write-Host "Using basic authorization to access feeds"
-	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$feed_pat")))"
-} else {
-	if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
-		Write-Host "Using bearer authorization to access feeds"
-		$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
-	}
-}
-if($feed_authorization -eq $null) {
-	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
-}
-Set-variable -Name "FEED_AUTHORIZATION" -Value $feed_authorization -Scope Global 
-
 
 if($releasebuild -ieq "true") {
     $releasebuild = $true
