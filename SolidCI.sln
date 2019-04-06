@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolidCI", "SolidCI\SolidCI.csproj", "{60B5E917-0109-4D11-8A8F-A82C8F833722}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolidCI.Azure", "SolidCI.Azure\SolidCI.Azure.csproj", "{07B850B6-3F31-46CF-8C1C-47CF2097097E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8973CAD0-BFBB-4259-877C-C850210176B4}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
+		nuget.config = nuget.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +17,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{60B5E917-0109-4D11-8A8F-A82C8F833722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60B5E917-0109-4D11-8A8F-A82C8F833722}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60B5E917-0109-4D11-8A8F-A82C8F833722}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60B5E917-0109-4D11-8A8F-A82C8F833722}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07B850B6-3F31-46CF-8C1C-47CF2097097E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07B850B6-3F31-46CF-8C1C-47CF2097097E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07B850B6-3F31-46CF-8C1C-47CF2097097E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07B850B6-3F31-46CF-8C1C-47CF2097097E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

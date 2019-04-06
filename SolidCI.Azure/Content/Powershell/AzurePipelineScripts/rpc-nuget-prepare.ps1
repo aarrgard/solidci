@@ -13,6 +13,7 @@ $releasebuild=$env:RELEASEBUILD
 $projectFolder=$env:projectFolder
 $releasedFeed=$env:releasedFeed
 $prereleasedFeed=$env:prereleasedFeed
+$system_teamfoundationserveruri=$env:SYSTEM_TEAMFOUNDATIONSERVERURI
 $system_accesstoken=$env:SYSTEM_ACCESSTOKEN
 $nugetServiceConnection=$env:nugetServiceConnection
 
@@ -54,7 +55,11 @@ if($prereleasedFeed -eq $null) {
 	$prereleasedFeed = "Prerelease"
 }
 if($accountName -eq $null) {
-	$accountName = ([System.Uri]$buildRepositoryUri).UserInfo
+	# match "https://dev.azure.com/andreas0539/"
+	if($($system_teamfoundationserveruri -match "^.+//.+/([^/]+)/$") -eq $True) 
+    {
+	    $accountName = $Matches[1]
+    }
 }
 
 
