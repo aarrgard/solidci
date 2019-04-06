@@ -18,7 +18,6 @@ variables:
   #accountName: 'andreas0539'
   #prereleasedFeed: 'Prerelease'
   #releasedFeed: 'Released'
-  feedPat: 'asjobxtasu7fubu5mryswxpsbmi7utakojoxmtzism6vlu3rkvnq'
 
 steps:
 
