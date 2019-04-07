@@ -81,19 +81,15 @@ steps:
 
 - task: NuGetCommand@2
   displayName: 'Nuget - push - Prerelease'
-  condition: eq(variables['releasebuild'], 'false')
+  condition: and(succeeded(), eq(variables['releasebuild'], 'false'))
   inputs:
     command: push
-    nuGetFeedType: external
     publishVstsFeed: Prerelease
-    publishFeedCredentials: NugetPrerelease
 
 - task: NuGetCommand@2
   displayName: 'Nuget - push - Release'
-  condition: eq(variables['releasebuild'], 'true')
+  condition: and(succeeded(), eq(variables['releasebuild'], 'true'))
   inputs:
     command: push
-    nuGetFeedType: external
     publishVstsFeed: Released
-    publishFeedCredentials: NugetReleased
 
