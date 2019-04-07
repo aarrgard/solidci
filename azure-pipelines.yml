@@ -40,7 +40,7 @@ steps:
   displayName: SolidCI - Powershell bootstrap
   inputs:
     targetType: "filePath"
-    filePath: $(powershellFolder)/AzurePipelineScripts/rpc-nuget-prepare.ps1
+    filePath: $(powershellFolder)/AzurePipelineScripts/solidci-nuget-prepare.ps1
   env: 
     #accountName: 'andreas0539'
     #prereleasedFeed: $(prereleasedFeed)
