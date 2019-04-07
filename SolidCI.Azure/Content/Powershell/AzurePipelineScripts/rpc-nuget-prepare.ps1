@@ -17,7 +17,7 @@ $system_teamfoundationserveruri=$env:SYSTEM_TEAMFOUNDATIONSERVERURI
 
 Get-ChildItem Env:
 
-if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
+if("$($env:TF_BUILD)" -ne "True") {
     #
     # Not running on a server
     #
@@ -29,7 +29,7 @@ if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
     $buildSourceVersion="09a3cdc04d68f16c7073c3f702a65ce20dec8103"
     $releasebuild="false"
 
-    if("$system_accesstoken" -eq "") {
+    if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
 
         $subscriptionId = ""
         #$rmAccount = Add-AzureRmAccount -SubscriptionId $subscriptionId
