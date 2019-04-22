@@ -14,7 +14,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   projectFolder: '$(Build.SourcesDirectory)'
-  powershellFolder: $(projectFolder)/SolidCI.Azure/Content/Powershell
+  solidCIPowershellFolder: $(projectFolder)/SolidCI.Azure/Content/Powershell
 
 
 steps:
@@ -37,7 +37,7 @@ steps:
   displayName: SolidCI - Powershell bootstrap
   inputs:
     targetType: "filePath"
-    filePath: $(powershellFolder)/AzurePipelineScripts/solidci-nuget-prepare.ps1
+    filePath: $(solidCIPowershellFolder)/AzurePipelineScripts/solidci-nuget-prepare.ps1
   env: 
     projectFolder: $(projectFolder)
         
