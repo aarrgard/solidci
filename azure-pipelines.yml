@@ -15,9 +15,6 @@ variables:
   buildConfiguration: 'Release'
   projectFolder: '$(Build.SourcesDirectory)'
   powershellFolder: $(projectFolder)/SolidCI.Azure/Content/Powershell
-  #accountName: 'andreas0539'
-  #prereleasedFeed: 'Prerelease'
-  #releasedFeed: 'Released' 
 
 
 steps:
@@ -42,11 +39,7 @@ steps:
     targetType: "filePath"
     filePath: $(powershellFolder)/AzurePipelineScripts/solidci-nuget-prepare.ps1
   env: 
-    #accountName: 'andreas0539'
-    #prereleasedFeed: $(prereleasedFeed)
-    #releasedFeed: $(releasedFeed)
     projectFolder: $(projectFolder)
-    #SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         
 #
 # Build stuff
