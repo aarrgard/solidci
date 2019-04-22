@@ -28,9 +28,9 @@ if(-not (Test-Path $solidCiNugetPackageLocation))
     throw "Cannot locate rpc nuget package @ $solidCiNugetPackageLocation. Missing a nuget restore?"
 }
 
-$solidCiPowershellLocation=Join-Path $solidCiNugetPackageLocation "content"
-$solidCiPowershellLocation=Join-Path $solidCiPowershellLocation "Content" 
-$solidCiPowershellLocation=Join-Path $solidCiPowershellLocation "Powershell"
+$solidCIPowershellFolder=Join-Path $solidCiNugetPackageLocation "content"
+$solidCIPowershellFolder=Join-Path $solidCIPowershellFolder "Content" 
+$solidCIPowershellFolder=Join-Path $solidCIPowershellFolder "Powershell"
 
-Write-Host "Using $solidCiPowershellLocation as location for solidCIPowershellScripts variable"
-Write-Output ("##vso[task.setvariable variable=solidCIPowershellScripts;]$solidCiPowershellLocation")
+Write-Host "Using $solidCIPowershellFolder as location for solidCIPowershellFolder variable"
+Write-Output ("##vso[task.setvariable variable=solidCIPowershellFolder;]$solidCIPowershellFolder")

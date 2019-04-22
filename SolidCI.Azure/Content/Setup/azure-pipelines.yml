@@ -2,16 +2,13 @@
 ## Build pipeline
 #
 
-name: 'SolidCI(Date:yyyyMMdd)$(Rev:.r)'
+name: 'SolidProxy$(Date:yyyyMMdd)$(Rev:.r)'
 
 trigger:
   branches:
     include:
     - master
-    - SolidCI/*
-  paths:
-    include:
-    - *
+    - SolidProxy/*
  
 pool:
   vmImage: 'Ubuntu-16.04'
@@ -19,11 +16,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   projectFolder: '$(Build.SourcesDirectory)'
-  powershellFolder: $(projectFolder)/SolidCI.Azure/Content/Powershell
-  #accountName: 'andreas0539'
-  #prereleasedFeed: 'Prerelease'
-  #releasedFeed: 'Released'
-  feedId: ''
+  solidCIPowershellFolder: $(projectFolder)
 
 steps:
 
@@ -39,17 +32,23 @@ steps:
     nugetConfigPath: $(projectFolder)/nuget.config
 
 #
-# Prepare nuget packages
+# Setupd solidci paths - must be done after nuget restore
 #
 - task: PowerShell@2
   displayName: SolidCI - Powershell bootstrap
   inputs:
     targetType: "filePath"
-    filePath: $(powershellFolder)/AzurePipelineScripts/rpc-nuget-prepare.ps1
+    filePath: $(solidCIPowershellFolder)/solidci-powershell-bootstrap.ps1
+
+#
+# Prepare nuget packages
+#
+- task: PowerShell@2
+  displayName: SolidCI - Nuget prepare
+  inputs:
+    targetType: "filePath"
+    filePath: $(solidCIPowershellFolder)/AzurePipelineScripts/solidci-nuget-prepare.ps1
   env: 
-    #accountName: 'andreas0539'
-    #prereleasedFeed: $(prereleasedFeed)
-    #releasedFeed: $(releasedFeed)
     projectFolder: $(projectFolder)
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         
