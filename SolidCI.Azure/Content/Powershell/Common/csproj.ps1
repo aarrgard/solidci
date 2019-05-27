@@ -46,21 +46,21 @@ function AddCsprojVersionsIfMissing() {
     if(-not $versionNode) {
         $versionNode = $scProjXml.CreateElement("Version")
         $versionNode.InnerText = "0.0.0"
-        $propertyGroup.Node.AppendChild($versionNode)
+        $dummy=$propertyGroup.Node.AppendChild($versionNode)
     }
 
 	$versionNode = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup/AssemblyVersion"
     if(-not $versionNode) {
         $versionNode = $scProjXml.CreateElement("AssemblyVersion")
         $versionNode.InnerText = "0.0.0.0"
-        $propertyGroup.Node.AppendChild($versionNode)
+        $dummy=$propertyGroup.Node.AppendChild($versionNode)
     }
 
 	$versionNode = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup/FileVersion"
     if(-not $versionNode) {
         $versionNode = $scProjXml.CreateElement("FileVersion")
         $versionNode.InnerText = "0.0.0"
-        $propertyGroup.Node.AppendChild($versionNode)
+        $dummy=$propertyGroup.Node.AppendChild($versionNode)
     }
     
     $scProjXml.Save($csProjFile.FullName)
