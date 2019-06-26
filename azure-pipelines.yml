@@ -72,12 +72,12 @@ steps:
     targetFolder: $(Build.ArtifactStagingDirectory)
 
 - bash: |
-    echo my environment variable is $FEEDID
+    echo my environment variable is FEED_ID
     
 
 - task: NuGetCommand@2
-  displayName: 'Nuget - push - $(feedId)'
+  displayName: 'Nuget - push - $(FEED_ID)'
   inputs:
     command: push
-    publishVstsFeed: $(feedId)
+    publishVstsFeed: $(FEED_ID)
 
