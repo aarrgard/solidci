@@ -72,6 +72,10 @@ steps:
     contents: '$(projectFolder)/**/*.nupkg'
     targetFolder: $(Build.ArtifactStagingDirectory)
 
+- bash: |
+    echo my environment variable is $feedId
+    
+
 - task: NuGetCommand@2
   displayName: 'Nuget - push - $(feedId)'
   inputs:
