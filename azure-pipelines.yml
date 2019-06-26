@@ -73,7 +73,7 @@ steps:
     targetFolder: $(Build.ArtifactStagingDirectory)
 
 - bash: |
-    echo my environment variable is $feedId
+    echo my environment variable is $FEEDID
     
 
 - task: NuGetCommand@2
