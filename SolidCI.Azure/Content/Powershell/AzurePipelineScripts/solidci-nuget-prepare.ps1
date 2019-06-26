@@ -74,7 +74,6 @@ if("$($semVerPreRelease)" -eq "") {
 } else {
 	$feedId = $feedReleased
 }
-Write-Host "##vso[task.setvariable variable=sauce]crushed tomatoes"
 Write-Host "##vso[task.setvariable variable=FEED_ID]$($feedId)"
 Write-Host "Will publish to feed $($feedId)"
 
