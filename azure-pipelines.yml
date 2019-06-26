@@ -20,6 +20,12 @@ variables:
 steps:
 
 #
+# use the installer tool to setup the nuget exe path.
+#
+- task: NuGetToolInstaller@0
+  displayName: Nuget - install
+
+#
 # Restore nuget packages
 #
 - task: DotNetCoreCLI@2
