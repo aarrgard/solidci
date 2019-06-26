@@ -34,7 +34,7 @@ steps:
 # Prepare nuget packages
 #
 - task: PowerShell@2
-  displayName: SolidCI - Powershell bootstrap
+  displayName: SolidCI - Nuget prepare
   inputs:
     targetType: "filePath"
     filePath: $(solidCIPowershellFolder)/AzurePipelineScripts/solidci-nuget-prepare.ps1
