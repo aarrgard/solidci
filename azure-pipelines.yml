@@ -15,7 +15,6 @@ variables:
   buildConfiguration: 'Release'
   projectFolder: '$(Build.SourcesDirectory)'
   solidCIPowershellFolder: $(projectFolder)/SolidCI.Azure/Content/Powershell
-  feedId: "Configured@NugetPrepare"
 
 steps:
 
