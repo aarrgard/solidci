@@ -34,36 +34,42 @@ function GetCsprojPackageName() {
 }
 
 #
-# Adds the version elements to the csproj file if they are missing.
+# Reads all the project properties
 #
-function AddCsprojVersionsIfMissing() {
+function ReadProjectProperties() {
     param([System.IO.FileInfo]$csProjFile)
+	[xml]$scProjXml=Get-Content $csProjFile.FullName
+    $props = @{}
+	$propertyGroup = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup" | ForEach-Object {
+        $_.Node.ChildNodes | ForEach-Object {
+            $props[$_.Name] = $_.InnerXml
+        }
+    }
+    
+    return $props
+}
+
+#
+# Updates/adds the supplied properties to the specified project
+#
+function WriteProjectProperties() {
+    param([System.IO.FileInfo]$csProjFile, [Hashtable] $props)
 
 	[xml]$scProjXml=Get-Content $csProjFile.FullName
 	$propertyGroup = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup"
 
-	$versionNode = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup/Version"
-    if(-not $versionNode) {
-        $versionNode = $scProjXml.CreateElement("Version")
-        $versionNode.InnerText = "0.0.0"
-        $propertyGroup.Node.AppendChild($versionNode)
+    $props.Keys | ForEach-Object {
+	    $node = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup/$_"
+        if(-not $node) {
+            $node = $scProjXml.CreateElement($_)
+            $node.InnerText = $props[$_]
+            $dummy = $propertyGroup.Node.AppendChild($node)
+        } else {
+            $node = $node.Node
+        }
+        $node.InnerText = $props[$_]
     }
 
-	$versionNode = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup/AssemblyVersion"
-    if(-not $versionNode) {
-        $versionNode = $scProjXml.CreateElement("AssemblyVersion")
-        $versionNode.InnerText = "0.0.0.0"
-        $propertyGroup.Node.AppendChild($versionNode)
-    }
-
-	$versionNode = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup/FileVersion"
-    if(-not $versionNode) {
-        $versionNode = $scProjXml.CreateElement("FileVersion")
-        $versionNode.InnerText = "0.0.0"
-        $propertyGroup.Node.AppendChild($versionNode)
-    }
-    
     $scProjXml.Save($csProjFile.FullName)
 }
-
 

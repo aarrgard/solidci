@@ -9,10 +9,10 @@ $buildSourceBranchName=$env:BUILD_SOURCEBRANCHNAME
 $buildRepositoryName=$env:BUILD_REPOSITORY_NAME
 $buildSourceVersion=$env:BUILD_SOURCEVERSION
 $buildRepositoryUri=$env:BUILD_REPOSITORY_URI
-$releasebuild=$env:RELEASEBUILD
+$semVerPreRelease=$env:SEMVER_PRERELEASE
 $projectFolder=$env:projectFolder
-$releasedFeed=$env:releasedFeed
-$prereleasedFeed=$env:prereleasedFeed
+$feedReleased=$env:FEED_RELEASED
+$feedPrerelease=$env:FEED_PRERELEASE
 $system_teamfoundationserveruri=$env:SYSTEM_TEAMFOUNDATIONSERVERURI
 
 Get-ChildItem Env:
@@ -22,35 +22,37 @@ if("$($env:TF_BUILD)" -ne "True") {
     # Not running on a server
     #
     $accountName="andreas0539"
-    $projectFolder="C:\Development\devopsarrgard\ContractAPI\Projects\Contracts.Rpc\Contracts.Rpc"
+    $projectFolder="C:\Development\github\solidci\SolidCI.Azure"
     $buildnumber="20190310.2"
-    $buildSourcesDirectory="C:\agent\_work\2\s"
+    $buildSourcesDirectory="C:\Development\github\solidci\"
     $buildSourceBranchName="master"
     $buildSourceVersion="09a3cdc04d68f16c7073c3f702a65ce20dec8103"
-    $releasebuild="false"
+    $semVerPreRelease=""
 
     if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
+        
 
-        $subscriptionId = ""
+
+        $subscriptionId = "c8db6045-f06a-4d9a-99c4-45af85f0fe8a"
         #$rmAccount = Add-AzureRmAccount -SubscriptionId $subscriptionId
         $tenantId = (Get-AzureRmSubscription -SubscriptionId $subscriptionId).TenantId
         $tokenCache = (Get-AzureRmContext).TokenCache
         $cachedTokens = $tokenCache.ReadItems() `
             | where { $_.TenantId -eq $tenantId } `
             | Sort-Object -Property ExpiresOn -Descending
-        $system_accesstoken = $cachedTokens[0].AccessToken
-
+        $env:SYSTEM_ACCESSTOKEN = $cachedTokens[0].AccessToken
+        $env:CSPROJ_1 = "Author:Andreas Arrgård"
     }
 }
 
 #
 # use default values
 #
-if($releasedFeed -eq $null) {
-	$releasedFeed = "Released"
+if($feedReleased -eq $null) {
+	$feedReleased = "Released"
 }
-if($prereleasedFeed -eq $null) {
-	$prereleasedFeed = "Prerelease"
+if($feedPrerelease -eq $null) {
+	$feedPrerelease = "Prerelease"
 }
 if($accountName -eq $null) {
 	# match "https://dev.azure.com/andreas0539/"
@@ -60,19 +62,28 @@ if($accountName -eq $null) {
     }
 }
 
-if($releasebuild -ieq "true") {
-    $releasebuild = $true
+#
+# determine if this is a release
+#
+if("$($semVerPreRelease)" -eq "") {
+    $semVerPreRelease = "build"
+	$feedId = $feedPrerelease
+} elseif("$($semVerPreRelease)" -eq "release") {
+    $semVerPreRelease = ""
+	$feedId = $feedReleased
 } else {
-    $releasebuild = $false
+	$feedId = $feedReleased
 }
+
+Write-Host "##vso[task.setvariable variable=feedId;isOutput=true]$($feedId)"
+Write-Host "Will publish to feed $($feedId)"
+
 
 #
 # emit vars
 #
 Write-Host "Defined variables:"
 Write-Host "accountName:($accountName)"
-Write-Host "prereleasedFeed:($prereleasedFeed)"
-Write-Host "releasedFeed:($releasedFeed)"
 Write-Host "buildnumber:($buildnumber)"
 Write-Host "buildSourcesDirectory:($buildSourcesDirectory)"
 Write-Host "nugetPackage:($nugetPackage)"
@@ -80,26 +91,15 @@ Write-Host "projectFolder:($projectFolder)"
 Write-Host "buildRepositoryName:($buildRepositoryName)"
 Write-Host "buildSourceBranchName:($buildSourceBranchName)"
 Write-Host "buildSourceVersion:($buildSourceVersion)"
-Write-Host "releasebuild:($releasebuild)"
-
-Write-Host "System.AccessToken:$($system_accesstoken)"
-Set-Variable -Name "system_accesstoken" -Value $system_accesstoken -Scope "global"
+Write-Host "feedPrerelease:($feedPrerelease)"
+Write-Host "feedReleased:($feedReleased)"
+Write-Host "feedId:($feedId)"
+Write-Host "semVerPreRelease:($semVerPreRelease)"
 
 #
 # Locate all csproj files
 #
 $csProjFiles = FindCsprojFiles "$projectFolder"
-
-#
-# determine feed to publish to
-#
-if($releasebuild) {
-	$feedId = $releasedFeed
-} else {
-	$feedId = $prereleasedFeed
-}
-Write-Host "##vso[task.setvariable variable=feedId;isOutput=true]$($feedId)"
-Write-Host "Will publish to feed $($feedId)"
 
 #
 # Process each csproj file separately
@@ -117,29 +117,22 @@ $csProjFiles | ForEach-Object {
 	#
 	# Get the next version number to build
 	# 
-	$nextVersionNumber=GetNextVersionNumber $accountName $releasedFeed $feedId $nugetPackage $buildSourceBranchName
+	$nextVersionNumber=GetNextVersionNumber $accountName $feedReleased $feedId $nugetPackage $buildSourceBranchName
 	$nextNugetVersionNumber=GetVersionFromVersionRange $nextVersionNumber
-	if($releasebuild) 
+	if("$($semVerPreRelease)" -eq "") 
 	{ 
 		$nextNugetVersionNumber=FormatString -patterArgs $nextNugetVersionNumber -pattern "{0}.{1}.{2}"
 	} 
 	else 
 	{
-		if($buildSourceBranchName -ieq "master") 
-		{
-			$nextNugetVersionNumber=FormatString -patterArgs $nextNugetVersionNumber -pattern "{0}.{1}.{2}-master{3:000}"
-		}
-		else
-		{
-			$nextNugetVersionNumber=FormatString -patterArgs $nextNugetVersionNumber -pattern "{0}.{1}.{2}-build{3:000}"
-		}
+		$nextNugetVersionNumber=FormatString -patterArgs $nextNugetVersionNumber -pattern "{0}.{1}.{2}-$($semVerPreRelease){3:000}"
 	}
-	Write-Host "Checking if $nugetPackage-$nextNugetVersionNumber is released."
 
 	#
 	# Check if already released
 	#
-	$released=IsReleased $accountName $releasedFeed $nugetPackage $nextVersionNumber
+	Write-Host "Checking if $nugetPackage-$nextNugetVersionNumber is released."
+	$released=IsReleased $accountName $feedReleased $nugetPackage $nextVersionNumber
 	if($released) {
 		throw "Version $nextVersionNumber is already released"
 	}
@@ -158,10 +151,21 @@ $csProjFiles | ForEach-Object {
     "[assembly: System.Reflection.AssemblyMetadata(""VstsBuildNumber"", ""$buildnumber"")]" | Out-File -FilePath $metadataFile -Append
 
 	#
-	# replace file & dll versions - after adding the elements if missing
+    # Add csproj. data from environment
+	# replace file & dll versions
 	#
-	AddCsprojVersionsIfMissing $csprojFile
-    ProcessFile $csprojFile.FullName "<Version>*</Version>" $nextNugetVersionNumber
-    ProcessFile $csprojFile.FullName "<AssemblyVersion>*</AssemblyVersion>" $nextVersionNumber
-    ProcessFile $csprojFile.FullName "<FileVersion>*</FileVersion>" $nextVersionNumber
+	$csprojProps = ReadProjectProperties $csprojFile
+    Get-ChildItem Env: | ForEach-Object {
+        if($_.Key.ToLower().StartsWith("csproj_")) {
+            $colonIdx=$_.Value.IndexOf(':')
+            if($colonIdx -gt -1) {
+                $csprojProps[$_.Value.Substring(0, $colonIdx)] = $_.Value.Substring($colonIdx+1)
+                $csprojProps
+            }
+        }
+    }
+    $csprojProps["Version"] = $nextNugetVersionNumber
+    $csprojProps["AssemblyVersion"] = $nextVersionNumber
+    $csprojProps["FileVersion"] = $nextVersionNumber
+    WriteProjectProperties $csprojFile $csprojProps
 }

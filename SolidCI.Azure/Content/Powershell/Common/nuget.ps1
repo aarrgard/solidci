@@ -5,16 +5,15 @@
 if("$($env:FEED_PAT)" -ne "") {
 	Write-Host "Using basic authorization to access feeds - using PAT"
 	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($env:FEED_PAT)")))"
-} else {
-	if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
-		Write-Host "Using bearer authorization to access feeds - using system accesstoken"
-		$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
-	}
+} elseif($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
+	Write-Host "Using bearer authorization to access feeds - using system accesstoken"
+	$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
 }
 if($feed_authorization -eq $null) {
 	Get-ChildItem Env:
 	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
-}
+} 
+
 Set-variable -Name "FEED_AUTHORIZATION" -Value $feed_authorization -Scope Global 
 
 $feeds=New-Object System.Collections.ArrayList
