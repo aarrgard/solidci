@@ -71,8 +71,18 @@ steps:
     contents: '$(projectFolder)/**/*.nupkg'
     targetFolder: $(Build.ArtifactStagingDirectory)
 
+# Create a variable
+- script: |
+    echo '##vso[task.setvariable variable=sauce]crushed tomatoes'
+
+# Use the variable
+# "$(sauce)" is replaced by the contents of the `sauce` variable by Azure Pipelines
+# before handing the body of the script to the shell.
+- script: |
+    echo my pipeline variable is $(sauce)
+
 - bash: |
-    echo my environment variable is FEED_ID
+    echo my environment variable is $FEED_ID
     
 
 - task: NuGetCommand@2
