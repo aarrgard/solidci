@@ -15,7 +15,7 @@ variables:
   buildConfiguration: 'Release'
   projectFolder: '$(Build.SourcesDirectory)'
   solidCIPowershellFolder: $(projectFolder)/SolidCI.Azure/Content/Powershell
-  feedId: "not set"
+  feedId: "Configured@NugetPrepare"
 
 steps:
 
@@ -74,7 +74,6 @@ steps:
 
 - task: NuGetCommand@2
   displayName: 'Nuget - push - $(feedId)'
-  condition: and(succeeded(), eq(variables['releasebuild'], 'false'))
   inputs:
     command: push
     publishVstsFeed: $(feedId)
