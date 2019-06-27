@@ -1,3 +1,79 @@
+#
+# invokes the nuget exe
+#
+function InvokeNugetExe()
+{
+    Write-Host "$args"
+	if("$($env:NUGETEXETOOLPATH)" -eq "") 
+	{
+	    throw "The NUGETEXETOOLPATH is not set."
+	}
+    
+    return (& $env:NUGETEXETOOLPATH $args) 
+}
+
+
+#
+# Returns all the feed sources
+#
+function GetNugetSources()
+{
+    $sources=@{}
+    $res=InvokeNugetExe "sources"
+    $res | ForEach-Object {
+        #Write-Host "->$_"
+        $match=[regex]::Match($_, '(\d+)\.\s(.+)\s\[(.+)\]')
+        if($match.Success) {
+            $idx = $match.Captures.groups[1].value
+            $name = $match.Captures.groups[2].value
+            $state = $match.Captures.groups[3].value
+            if("$state" -eq "Enabled") {
+                $lastName=$name
+            }
+            #Write-Host "Match $idx $name $state"
+        } elseif ("$lastName" -ne "") {
+            $sources[$lastName.Trim()] = $_.Trim()
+            $lastName = ""
+        }
+    }
+    return $sources
+}
+
+#
+# Returns all the versions for specified package
+#
+function GetNugetPackageVersions()
+{
+    param([string[]] $sourceNames, [string] $name)
+
+    $nugetSources=GetNugetSources
+    if($sourceNames -eq $null) {
+        $sourceNames=$nugetSources.Keys
+    }
+
+    $sources = @()
+    $sourceNames | ForEach-Object {
+        $sources += $nugetSources[$_]
+    }
+    $sources=[system.String]::Join(",", $sources)
+    Write-Host "$sources"
+
+    $versions = @()
+    $res=InvokeNugetExe "list" "-Prerelease" "-AllVersions" "-Source" $sources $name
+    $res | ForEach-Object {
+        #Write-Host "->$_"
+        $match=[regex]::Match($_, "$name (.+)")
+        if($match.Success) {
+            $version = $match.Captures.groups[1].value
+            $versions += $version
+            #Write-Host $version
+        }
+    }
+    return $versions
+}
+
+$versions=GetNugetPackageVersions "AndreasPrerelease" "SolidCI.Azure"
+Write-Host $versions
 
 #
 # setup feed authorization
@@ -10,8 +86,8 @@ if("$($env:FEED_PAT)" -ne "") {
 	$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
 }
 if($feed_authorization -eq $null) {
-	Get-ChildItem Env:
-	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
+	#Get-ChildItem Env:
+	#throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
 } 
 
 Set-variable -Name "FEED_AUTHORIZATION" -Value $feed_authorization -Scope Global 
@@ -56,35 +132,6 @@ function GetPackages
     $feeds.Add($feedId)
 
     Set-Variable -Name "$feedId-packages" -Value $res -Scope Global
-    return $res
-}
-
-function GetPackageVersion
-{
-    param([string]$accountName, [string]$feedId, [string]$name, [string]$version)
-    $packages=GetPackages $accountName $feedId
-    $package=$null
-    $packageVersion=$null
-    $packages | % { 
-        if($_.Name -eq $name) {
-            $workPackage=$_
-            $_.versions | % {
-                if($_.Version -eq $version) {
-                    $package=$workPackage
-                    $packageVersion=$_
-                }
-            }
-        } 
-    }
-
-    if(-not $package) {
-        Write-Host "Could not find package $name-$version in $feedId"
-        return $null
-    }
-    
-
-    $uri="$($package.url)/Versions/$($packageVersion.id)"
-    $res=InvokeWebRequest $uri
     return $res
 }
 
@@ -268,16 +315,6 @@ function Release
         return;
     }
     Write-Host "Releasing $name-$versionToRelease"
-    
-#    $packageeVersion=GetPackageVersion $prereleaseFeedId "TimeMachine.Impl.SqlServer" "1.1.4-build071"
-#    foreach($dep in $packageeVersion.Dependencies) 
-#    {
-#        $depVersion=GetVersionFromVersionRange $dep.VersionRange
-#        if($depVersion) 
-#        {
-#            Release $dep.PackageName $depVersion
-#        }
-#    }
 }
 
 function GetLatestVersion() 
