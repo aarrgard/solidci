@@ -6,7 +6,7 @@ function InvokeNugetExe()
     #Write-Host "$args"
 	if("$($env:NUGETEXETOOLPATH)" -eq "") 
 	{
-	    throw "The NUGETEXETOOLPATH is not set."
+	    throw "The NUGETEXETOOLPATH is not set. Did you run the tool installer task?"
 	}
     
     return (& $env:NUGETEXETOOLPATH $args) 
