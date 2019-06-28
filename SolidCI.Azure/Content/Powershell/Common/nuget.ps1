@@ -3,7 +3,7 @@
 #
 function InvokeNugetExe()
 {
-    Write-Host "$args"
+    #Write-Host "$args"
 	if("$($env:NUGETEXETOOLPATH)" -eq "") 
 	{
 	    throw "The NUGETEXETOOLPATH is not set."
@@ -59,7 +59,7 @@ function GetNugetPackageVersions()
     Write-Host "$sources"
 
     $versions = @()
-    $res=InvokeNugetExe "list" "-Prerelease" "-AllVersions" "-Source" $sources "id:$name"
+    $res=InvokeNugetExe "list" "-Prerelease" "-AllVersions" "-Source" $sources "$name"
     $res | ForEach-Object {
         #Write-Host "->$_"
         $match=[regex]::Match($_, "$name (.+)")
@@ -99,6 +99,9 @@ function GetNugetBuildVersion()
     }
 
     $wantedVersion=GetVersionFromVersionRange $version
+    if($wantedVersion -eq $null) {
+        throw "Cannot parse version $version"
+    }
     $wantedVersion="$($wantedVersion[0]).$($wantedVersion[1]).$($wantedVersion[2])$semVersuffix"
     $versions=GetNugetPackageVersions $sourceNames $name
     $nextVersion=0

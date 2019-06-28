@@ -5,6 +5,11 @@ $env:NUGETEXETOOLPATH="C:\Users\andreas.arrgard\Downloads\nuget.exe"
 . "$PSScriptRoot\replace.ps1"
 . "$PSScriptRoot\assert.ps1"
 
+GetNugetPackageVersions Prerelease SolidCI.Azure
+GetNugetBuildVersion Prerelease SolidCI.Azure 1.0.0 build
+
+throw "dfsdf"
+
 #
 # test package versions
 #
