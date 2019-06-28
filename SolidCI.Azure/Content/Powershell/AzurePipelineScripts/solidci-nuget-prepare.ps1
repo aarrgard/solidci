@@ -117,7 +117,7 @@ $csProjFiles | ForEach-Object {
 	#
 	# Get the next version number to build
 	# 
-	$nextVersionNumber=GetNextVersionNumber $accountName $feedReleased $feedId $nugetPackage $buildSourceBranchName
+	$nextVersionNumber=GetNugetBuildVersion $feedId $nugetPackage $nugetPackage $semVerPreRelease
 	$nextNugetVersionNumber=GetVersionFromVersionRange $nextVersionNumber
 	if("$($semVerPreRelease)" -eq "") 
 	{ 
@@ -132,7 +132,7 @@ $csProjFiles | ForEach-Object {
 	# Check if already released
 	#
 	Write-Host "Checking if $nugetPackage-$nextNugetVersionNumber is released."
-	$released=IsReleased $accountName $feedReleased $nugetPackage $nextVersionNumber
+	$released=IsNugetReleased $feedReleased $nugetPackage $nextVersionNumber
 	if($released) {
 		throw "Version $nextVersionNumber is already released"
 	}

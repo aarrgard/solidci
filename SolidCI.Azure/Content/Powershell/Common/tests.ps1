@@ -26,9 +26,23 @@ AssertAreEqual 1 $csProjFiles.Count
 AssertAreEqual "SolidCI.Azure" $(GetCsprojPackageName $csProjFiles[0])
 
 $csprojProps = ReadProjectProperties $csProjFiles[0]
-AssertAreEqual 1 $csprojProps.Count
+AssertAreEqual 2 $csprojProps.Count
 $csprojProps["Version"] = "1.0.2"
 WriteProjectProperties $csProjFiles[0] $csprojProps
 
+#
+# nuget
+#
+#$versions=GetNugetPackageVersions "AndreasPrerelease" "SolidCI.Azure"
+$versions=GetNugetPackageVersions "nuget.org" "Newtonsoft.Json"
+AssertAreEqual 24 $versions.Length
+$released=IsNugetReleased "nuget.org" "Newtonsoft.Json" "12.0.2-beta2"
+AssertAreEqual $true $released
+$released=IsNugetReleased "nuget.org" "Newtonsoft.Json" "12.0.2"
+AssertAreEqual $true $released
+$released=IsNugetReleased "nuget.org" "Newtonsoft.Json" "12.0.0"
+AssertAreEqual $false $released
+$buildVersion=GetNugetBuildVersion "nuget.org" "RestSharp" "106.2.0" "alpha"
+AssertAreEqual "" $buildVersion
 
 
