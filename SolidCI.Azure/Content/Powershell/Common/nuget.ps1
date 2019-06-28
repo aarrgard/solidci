@@ -4,12 +4,21 @@
 function InvokeNugetExe()
 {
     #Write-Host "$args"
-	if("$($env:NUGETEXETOOLPATH)" -eq "") 
+    $exe = $env:NUGETEXETOOLPATH
+	if("$exe" -eq "") 
 	{
-	    throw "The NUGETEXETOOLPATH is not set. Did you run the tool installer task?"
+	    throw "The NUGETEXETOOLPATH is not set."
 	}
-    
-    return (& $env:NUGETEXETOOLPATH $args) 
+
+    Write-Host "Running: $exe $args"
+    $process = Start-Process -FilePath $exe -ArgumentList "sources" -NoNewWindow -PassThru -Wait
+    $exitCode = $process.ExitCode
+    $result = $process.StandardOutput.ReadToEnd()
+    Write-Host "->$($exitCode)"
+    if("$result" -eq "") {
+        throw "Could not run command "
+    }
+    return $result
 }
 
 
