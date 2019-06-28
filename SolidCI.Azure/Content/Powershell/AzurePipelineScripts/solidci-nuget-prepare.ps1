@@ -117,7 +117,9 @@ $csProjFiles | ForEach-Object {
 	#
 	# Get the next version number to build
 	# 
+	Write-Host "GetNugetBuildVersion $feedId $nugetPackage $nugetPackage $semVerPreRelease"
 	$nextVersionNumber=GetNugetBuildVersion $feedId $nugetPackage $nugetPackage $semVerPreRelease
+	Write-Host "GetVersionFromVersionRange $nextVersionNumber"
 	$nextNugetVersionNumber=GetVersionFromVersionRange $nextVersionNumber
 	if("$($semVerPreRelease)" -eq "") 
 	{ 
