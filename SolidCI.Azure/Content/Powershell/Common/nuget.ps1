@@ -1,3 +1,23 @@
+function runProcess ($cmd, $params, $windowStyle=1) {
+    Write-Host "runProcess $cmd $params"
+
+    $pi = new-object System.Diagnostics.ProcessStartInfo
+    $pi.FileName = $cmd
+    $pi.Arguments = $params
+    $pi.UseShellExecute = $False
+    $pi.CreateNoWindow  = $True
+    $pi.RedirectStandardError = $True
+    $pi.RedirectStandardOutput = $True
+    $pi.WindowStyle = $windowStyle; #1 = hidden, 2 =maximized, 3=minimized, 4=normal
+    $p = [System.Diagnostics.Process]::Start($pi)
+    $p.WaitForExit()
+    $output = $p.StandardOutput.ReadToEnd()
+    $exitcode = $p.ExitCode
+    Write-Host "ExitCode:$exitcode->$output"
+    $p.Dispose()
+    return $output
+}
+
 #
 # invokes the nuget exe
 #
@@ -10,14 +30,12 @@ function InvokeNugetExe()
 	    throw "The NUGETEXETOOLPATH is not set."
 	}
 
-    Write-Host "Running: $exe $args"
-    $process = Start-Process -FilePath $exe -ArgumentList "sources" -NoNewWindow -PassThru -Wait
-    $exitCode = $process.ExitCode
-    $result = $process.StandardOutput.ReadToEnd()
-    Write-Host "->$($exitCode)"
-    if("$result" -eq "") {
-        throw "Could not run command "
-    }
+    #Write-Host "Running: $exe $args"
+    #$process = Start-Process -FilePath $exe -ArgumentList "sources" -NoNewWindow -PassThru -Wait
+    #$exitCode = $process.ExitCode
+    #$result = $process.StandardOutput.ReadToEnd()
+
+    $result=runProcess $exe $args
     return $result
 }
 

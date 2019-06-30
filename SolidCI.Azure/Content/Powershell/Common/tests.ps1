@@ -1,4 +1,4 @@
-$env:NUGETEXETOOLPATH="C:\Users\andreas.arrgard\Downloads\nuget.exe"
+$env:NUGETEXETOOLPATH="C:\Users\Andreas Arrgård\Downloads\nuget.exe"
 
 . "$PSScriptRoot\nuget.ps1"
 . "$PSScriptRoot\csproj.ps1"
