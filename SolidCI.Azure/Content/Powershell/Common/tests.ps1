@@ -1,10 +1,25 @@
-$env:NUGETEXETOOLPATH="C:\Users\Andreas Arrgård\Downloads\nuget.exe"
+if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
+        
+    $subscriptionId = "c8db6045-f06a-4d9a-99c4-45af85f0fe8a"
+    #$rmAccount = Add-AzureRmAccount -SubscriptionId $subscriptionId
+    $tenantId = (Get-AzureRmSubscription -SubscriptionId $subscriptionId).TenantId
+    $tokenCache = (Get-AzureRmContext).TokenCache
+    $cachedTokens = $tokenCache.ReadItems() `
+        | where { $_.TenantId -eq $tenantId } `
+        | Sort-Object -Property ExpiresOn -Descending
+    $env:SYSTEM_ACCESSTOKEN = $cachedTokens[0].AccessToken
+    $env:CSPROJ_1 = "Author:Andreas Arrgård"
+}
+$env:NUGETCONFIG="..\..\..\..\nuget.config"
 
 . "$PSScriptRoot\nuget.ps1"
 . "$PSScriptRoot\csproj.ps1"
 . "$PSScriptRoot\replace.ps1"
 . "$PSScriptRoot\assert.ps1"
 
+#GetNugetSources
+#$res=GetNugetPackageVersions2 "nuget.org" "Newtonsoft.Json"
+#GetNugetBuildVersion nuget.org Newtonsoft.Json 1.0.0 build
 GetNugetBuildVersion Prerelease SolidCI.Azure 1.0.0 build
 
 throw "dfsdf"

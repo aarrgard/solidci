@@ -1,3 +1,58 @@
+#
+# setup feed authorization
+#
+if("$($env:FEED_PAT)" -ne "") {
+	Write-Host "Using basic authorization to access feeds - using PAT"
+	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($env:FEED_PAT)")))"
+} elseif($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
+	Write-Host "Using bearer authorization to access feeds - using system accesstoken"
+	$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
+}
+if($feed_authorization -eq $null) {
+	Get-ChildItem Env:
+	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
+} 
+
+Set-variable -Name "FEED_AUTHORIZATION" -Value $feed_authorization -Scope Global 
+
+
+$requestCache=@{}
+function InvokeWebRequest()
+{
+    param([string] $uri)
+
+    #
+    # check if the request is cached
+    #
+    $cachedResponse = $requestCache[$uri];
+    if($cachedResponse -ne $null) {
+        Write-Host "Returning cached response for $uri"
+        return $cachedResponse
+    } else {
+        Write-Host "Getting data from $uri ..."
+        $headers = @{}
+        if("$FEED_AUTHORIZATION" -ne "") {
+            $headers["Authorization"] = $FEED_AUTHORIZATION
+        }
+        try { 
+            $resp=Invoke-WebRequest -Uri $uri -Headers $headers -UseBasicParsing
+        } catch {
+            $resp = $_.Exception.Response
+        }
+
+        #Write-Host "Got data:$($resp)"
+	    $statusCode=$resp.StatusCode
+	    $acceptedCodes=@(200,203)
+	    if(-not $($acceptedCodes).Contains($statusCode)) {
+		    throw "Status code not ok ($statusCode). Should be one of $acceptedCodes"
+	    }
+
+        $res=$resp.Content | ConvertFrom-Json
+        $requestCache[$uri] = $res
+        return $res
+    }
+}
+
 function runProcess ($cmd, $params, $windowStyle=1) {
     Write-Host "runProcess $cmd $params"
 
@@ -14,6 +69,9 @@ function runProcess ($cmd, $params, $windowStyle=1) {
     $output = $p.StandardOutput.ReadToEnd()
     $exitcode = $p.ExitCode
     Write-Host "ExitCode:$exitcode->$output"
+    if("$exitcode" -ne "0") {
+        throw "command failed"
+    }
     $p.Dispose()
     return $output
 }
@@ -24,11 +82,12 @@ function runProcess ($cmd, $params, $windowStyle=1) {
 function InvokeNugetExe()
 {
     #Write-Host "$args"
-    $exe = $env:NUGETEXETOOLPATH
-	if("$exe" -eq "") 
-	{
-	    throw "The NUGETEXETOOLPATH is not set."
-	}
+    $exe="dotnet"
+    #$exe = $env:NUGETEXETOOLPATH
+	#if("$exe" -eq "") 
+	#{
+	#    throw "The NUGETEXETOOLPATH is not set."
+	#}
 
     #Write-Host "Running: $exe $args"
     #$process = Start-Process -FilePath $exe -ArgumentList "sources" -NoNewWindow -PassThru -Wait
@@ -45,7 +104,25 @@ function InvokeNugetExe()
 #
 function GetNugetSources()
 {
+    param()
     $sources=@{}
+
+    $nugetConfig=$env:NUGETCONFIG
+    if("$nugetConfig" -ne "") {
+        $configFile=[System.IO.FileInfo]::new($nugetConfig)
+        if(!$configFile.Exists) {
+            throw "File does not exist $($configFile.FullName)"
+        }
+        [xml]$configXml=Get-Content $configFile.FullName
+        $configXml.SelectNodes("/configuration/packageSources/add") | ForEach-Object {
+            $sourceName = $_.Attributes["key"].Value
+            $source = $_.Attributes["value"].Value
+            $sources[$sourceName] = $source
+        }
+
+        return $sources
+    }
+
     $res=InvokeNugetExe "sources"
     $res | ForEach-Object {
         #Write-Host "->$_"
@@ -67,7 +144,33 @@ function GetNugetSources()
 }
 
 #
-# Returns all the versions for specified package
+# returns the service url
+#
+function GetServiceUrl() 
+{
+    param([string] $serviceName, [string[]] $serviceTypes)
+    $rootUrl = (GetNugetSources)[$serviceName]
+    $res = InvokeWebRequest $rootUrl 
+    $found=$false
+    $res.resources | ForEach-Object {
+        $resource = $_
+        if(-not $found) {
+            $serviceTypes | ForEach-Object {
+                $serviceType = $_
+                if($resource.'@type' -eq $serviceType) {
+                    $found=$true
+                    return $resource.'@id'
+                }
+            }
+        }
+    }
+    if($found -ne $true) {
+        throw "Cannot find any of the service types $serviceTypes"
+    }
+}
+
+#
+# returns the information about a package @ a source
 #
 function GetNugetPackageVersions()
 {
@@ -78,25 +181,33 @@ function GetNugetPackageVersions()
         $sourceNames=$nugetSources.Keys
     }
 
-    $sources = @()
     $sourceNames | ForEach-Object {
-        $sources += $nugetSources[$_]
-    }
-    $sources=[system.String]::Join(",", $sources)
-    Write-Host "$sources"
-
-    $versions = @()
-    $res=InvokeNugetExe "list" "-Prerelease" "-AllVersions" "-Source" $sources "$name"
-    $res | ForEach-Object {
-        #Write-Host "->$_"
-        $match=[regex]::Match($_, "$name (.+)")
-        if($match.Success) {
-            $version = $match.Captures.groups[1].value
-            $versions += $version
-            #Write-Host $version
+        GetNugetPackageMetaData $_ $name | ForEach-Object {
+            $_.version
         }
     }
-    return $versions
+}
+
+#
+# Returns the nuget package meta data.
+#
+function GetNugetPackageMetaData() {
+    param([string[]] $sourceName, [string] $name)
+    $registrationBaseUrl=GetServiceUrl $sourceName $("RegistrationsBaseUrl/3.6.0", "RegistrationsBaseUrl/3.4.0", "RegistrationsBaseUrl/3.0.0-rc", "RegistrationsBaseUrl/3.0.0-beta", "RegistrationsBaseUrl")
+    $res = InvokeWebRequest "$registrationBaseUrl$($name.ToLowerInvariant())/index.json" 
+    $res.items | ForEach-Object {
+        $_.items | ForEach-Object {
+            $catalogEntry=$_.catalogEntry
+            @{
+                id=$catalogEntry.id;
+                version=$catalogEntry.version;
+                title=$catalogEntry.title;
+                authors=$catalogEntry.authors;
+                description=$catalogEntry.description;
+                projectUrl=$catalogEntry.projectUrl;               
+            }
+        }
+    }
 }
 
 #
@@ -133,7 +244,7 @@ function GetNugetBuildVersion()
     $versions=GetNugetPackageVersions $sourceNames $name
     $nextVersion=0
     $versions | ForEach-Object {
-        Write-Host "$_"
+        #Write-Host "$_"
         $match=[regex]::Match($_, "$wantedVersion(\d+)")
         if($match.Success) {
             $versionNumber=[int]$match.Captures.Groups[1].Value
