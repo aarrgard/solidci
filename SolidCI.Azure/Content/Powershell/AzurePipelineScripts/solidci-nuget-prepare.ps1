@@ -28,6 +28,8 @@ if("$($env:TF_BUILD)" -ne "True") {
     $buildSourceBranchName="master"
     $buildSourceVersion="09a3cdc04d68f16c7073c3f702a65ce20dec8103"
     $semVerPreRelease=""
+    $env:nugetConfigPath="..\..\..\..\nuget.config"
+
 
     if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
         
@@ -118,17 +120,18 @@ $csProjFiles | ForEach-Object {
 	# Get the next version number to build
 	# 
 	Write-Host "GetNugetBuildVersion $feedId $nugetPackage $buildSourceBranchName $semVerPreRelease"
-	$nextVersionNumber=GetNugetBuildVersion $feedId $nugetPackage $buildSourceBranchName $semVerPreRelease
-	Write-Host "GetVersionFromVersionRange $nextVersionNumber"
-	$nextNugetVersionNumber=GetVersionFromVersionRange $nextVersionNumber
-	if("$($semVerPreRelease)" -eq "") 
+	$nextNugetVersionNumber=GetNugetBuildVersion $feedId $nugetPackage $buildSourceBranchName $semVerPreRelease
+	Write-Host "GetVersionFromVersionRange $nextNugetVersionNumber"
+	$nextVersionNumber=GetVersionFromVersionRange $nextNugetVersionNumber
+	if("$semVerPreRelease" -eq "") 
 	{ 
-		$nextNugetVersionNumber=FormatString -patterArgs $nextNugetVersionNumber -pattern "{0}.{1}.{2}"
+		$nextNugetVersionNumber=FormatString -patterArgs $nextVersionNumber -pattern "{0}.{1}.{2}"
 	} 
 	else 
 	{
-		$nextNugetVersionNumber=FormatString -patterArgs $nextNugetVersionNumber -pattern "{0}.{1}.{2}-$($semVerPreRelease){3:000}"
+		$nextNugetVersionNumber=FormatString -patterArgs $nextVersionNumber -pattern "{0}.{1}.{2}-$($semVerPreRelease){3:000}"
 	}
+	$nextVersionNumber=FormatString -patterArgs $nextVersionNumber -pattern "{0}.{1}.{2}.{3}"
 
 	#
 	# Check if already released
@@ -162,7 +165,6 @@ $csProjFiles | ForEach-Object {
             $colonIdx=$_.Value.IndexOf(':')
             if($colonIdx -gt -1) {
                 $csprojProps[$_.Value.Substring(0, $colonIdx)] = $_.Value.Substring($colonIdx+1)
-                $csprojProps
             }
         }
     }

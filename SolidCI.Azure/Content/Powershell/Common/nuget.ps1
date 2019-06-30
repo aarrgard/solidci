@@ -181,11 +181,13 @@ function GetNugetPackageVersions()
         $sourceNames=$nugetSources.Keys
     }
 
+    $versions = @()
     $sourceNames | ForEach-Object {
         GetNugetPackageMetaData $_ $name | ForEach-Object {
-            $_.version
+            $versions += $_.version
         }
     }
+    return $versions
 }
 
 #
@@ -220,8 +222,13 @@ function IsNugetReleased()
     param([string]$sourceName, [string]$name, [string]$version)
     $wantedVersion=GetVersionFromVersionRange $version
     $wantedVersion="$($wantedVersion[0]).$($wantedVersion[1]).$($wantedVersion[2])"
-    $versions=GetNugetPackageVersions $sourceName $name
-    return $versions.Contains($wantedVersion)
+    $released=$false
+    GetNugetPackageVersions $sourceName $name | ForEach-Object {
+        if($wantedVersion -eq $_) {
+            $released = $true
+        }
+    }
+    return $released
 }
 
 #
@@ -235,17 +242,29 @@ function GetNugetBuildVersion()
     {
         $semVersuffix = "-$semVersuffix"
     }
-
+    else 
+    {
+        $semVersuffix = "-build"
+    }
     $wantedVersion=GetVersionFromVersionRange $version
     if($wantedVersion -eq $null) {
-        throw "Cannot parse version $version"
+        $released = "0.0.0.0"
+        GetNugetPackageVersions $sourceNames $name | ForEach-Object {
+            if(-not $_.Contains('-')) {
+                if($released -lt $_) {
+                    $released = $_
+                }
+            }
+        }
+        $wantedVersion=GetVersionFromVersionRange $released
+        $wantedVersion[1] = $wantedVersion[1] + 1
     }
     $wantedVersion="$($wantedVersion[0]).$($wantedVersion[1]).$($wantedVersion[2])$semVersuffix"
     $versions=GetNugetPackageVersions $sourceNames $name
     $nextVersion=0
     $versions | ForEach-Object {
         #Write-Host "$_"
-        $match=[regex]::Match($_, "$wantedVersion(\d+)")
+        $match=[regex]::Match($_, "$wantedVersion[^\d]*(\d+)")
         if($match.Success) {
             $versionNumber=[int]$match.Captures.Groups[1].Value
             #Write-Host $versionNumber
