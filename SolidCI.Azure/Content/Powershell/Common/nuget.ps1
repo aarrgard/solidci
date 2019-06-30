@@ -223,12 +223,17 @@ function IsNugetReleased()
     $wantedVersion=GetVersionFromVersionRange $version
     $wantedVersion="$($wantedVersion[0]).$($wantedVersion[1]).$($wantedVersion[2])"
     $released=$false
-    GetNugetPackageVersions $sourceName $name | ForEach-Object {
-        if($wantedVersion -eq $_) {
-            $released = $true
-        }
-    }
-    return $released
+	try {
+		GetNugetPackageVersions $sourceName $name | ForEach-Object {
+			if($wantedVersion -eq $_) {
+				$released = $true
+			}
+		}
+		return $released
+	} catch {
+		# assume that get nuget packages failed since package does not exist.
+		return $released
+	}
 }
 
 #
