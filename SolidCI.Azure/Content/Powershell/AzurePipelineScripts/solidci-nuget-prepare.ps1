@@ -161,6 +161,7 @@ $csProjFiles | ForEach-Object {
 	$csprojProps = ReadProjectProperties $csprojFile
     Get-ChildItem Env: | ForEach-Object {
         if($_.Key.ToLower().StartsWith("csproj_")) {
+			Write-Host "Handling csproj setting: $_"
             $colonIdx=$_.Value.IndexOf(':')
             if($colonIdx -gt -1) {
                 $csprojProps[$_.Value.Substring(0, $colonIdx)] = $_.Value.Substring($colonIdx+1)
