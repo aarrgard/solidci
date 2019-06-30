@@ -107,7 +107,7 @@ function GetNugetSources()
     param()
     $sources=@{}
 
-    $nugetConfig=$env:NUGETCONFIG
+    $nugetConfig=$env:nugetConfigPath
     if("$nugetConfig" -ne "") {
         $configFile=[System.IO.FileInfo]::new($nugetConfig)
         if(!$configFile.Exists) {
