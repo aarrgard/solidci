@@ -20,9 +20,7 @@ $env:NUGETCONFIG="..\..\..\..\nuget.config"
 #GetNugetSources
 #$res=GetNugetPackageVersions2 "nuget.org" "Newtonsoft.Json"
 #GetNugetBuildVersion nuget.org Newtonsoft.Json 1.0.0 build
-GetNugetBuildVersion Prerelease SolidCI.Azure 1.0.0 build
-
-throw "dfsdf"
+#GetNugetBuildVersion Prerelease SolidCI.Azure 1.0.0 build
 
 #
 # test package versions
@@ -30,12 +28,15 @@ throw "dfsdf"
 AssertAreEqual (GetVersionFromVersionRange "1.2.3") (@(1,2,3,0))
 AssertAreEqual (GetVersionFromVersionRange "1.2.3-master") (@(1,2,3,0))
 AssertAreEqual (GetVersionFromVersionRange "1.2.3.build1") (@(1,2,3,1))
+AssertAreEqual (GetVersionFromVersionRange "1.2.3-rc001") (@(1,2,3,1))
 AssertAreEqual (GetVersionFromVersionRange "1.2.3.4-build1") (@(1,2,3,1))
 
 AssertAreEqual (GetVersionFromVersionRange "2018.5.6") (@(2018,5,6,0))
 AssertAreEqual (GetVersionFromVersionRange "feature-234-build1") (@(0,0,234,1))
 AssertAreEqual (GetVersionFromVersionRange "feature-235.build23") (@(0,0,235,23))
 AssertAreEqual (GetVersionFromVersionRange "xxx") $null
+
+throw "dfsdf"
 
 #
 # test csproj file support

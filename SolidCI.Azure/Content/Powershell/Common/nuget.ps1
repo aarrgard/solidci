@@ -317,15 +317,7 @@ function GetVersionFromVersionRange
 {
     param([string]$versionRange)
     #Write-Host "$versionRange"
-    $match=[regex]::Match("$versionRange", "^(\d+)[.](\d+)[.](\d+)(?:.\d+)*-master(\d+)")
-    if($match.Success) {
-        return @((GetVersionVal $match 1), (GetVersionVal $match 2),(GetVersionVal $match 3), (GetVersionVal $match 4))
-    }
-    $match=[regex]::Match("$versionRange", "^(\d+)[.](\d+)[.](\d+)(?:.\d+)*-build(\d+)")
-    if($match.Success) {
-        return @((GetVersionVal $match 1), (GetVersionVal $match 2),(GetVersionVal $match 3), (GetVersionVal $match 4))
-    }
-    $match=[regex]::Match("$versionRange", "^(\d+)[.](\d+)[.](\d+)(?:.\d+)*.build(\d+)")
+    $match=[regex]::Match("$versionRange", "^(\d+)[.](\d+)[.](\d+)(?:.\d+)*[\.\-](?:[^\d]+)(\d+)")
     if($match.Success) {
         return @((GetVersionVal $match 1), (GetVersionVal $match 2),(GetVersionVal $match 3), (GetVersionVal $match 4))
     }
