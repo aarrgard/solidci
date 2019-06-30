@@ -21,6 +21,7 @@ $env:NUGETCONFIG="..\..\..\..\nuget.config"
 #$res=GetNugetPackageVersions2 "nuget.org" "Newtonsoft.Json"
 #GetNugetBuildVersion nuget.org Newtonsoft.Json 1.0.0 build
 #GetNugetBuildVersion Prerelease SolidCI.Azure 1.0.0 build
+GetNugetBuildVersion Prerelease SolidProxy.XUnitTests 1.0.0 build
 
 #
 # test package versions

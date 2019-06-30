@@ -183,9 +183,15 @@ function GetNugetPackageVersions()
 
     $versions = @()
     $sourceNames | ForEach-Object {
-        GetNugetPackageMetaData $_ $name | ForEach-Object {
-            $versions += $_.version
-        }
+        try {
+            GetNugetPackageMetaData $_ $name | ForEach-Object {
+                $versions += $_.version
+            }
+	    } catch {
+            if("$($_)" -ne "Status code not ok (Unauthorized). Should be one of 200 203") {
+    		    throw
+            }
+	    }
     }
     return $versions
 }
@@ -223,17 +229,12 @@ function IsNugetReleased()
     $wantedVersion=GetVersionFromVersionRange $version
     $wantedVersion="$($wantedVersion[0]).$($wantedVersion[1]).$($wantedVersion[2])"
     $released=$false
-	try {
-		GetNugetPackageVersions $sourceName $name | ForEach-Object {
-			if($wantedVersion -eq $_) {
-				$released = $true
-			}
+	GetNugetPackageVersions $sourceName $name | ForEach-Object {
+		if($wantedVersion -eq $_) {
+			$released = $true
 		}
-		return $released
-	} catch {
-		# assume that get nuget packages failed since package does not exist.
-		return $released
 	}
+	return $released
 }
 
 #
