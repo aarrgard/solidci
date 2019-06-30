@@ -17,8 +17,15 @@ variables:
   buildConfiguration: 'Release'
   projectFolder: '$(Build.SourcesDirectory)'
   solidCIPowershellFolder: $(projectFolder)
+ FEED_ID: "Configured@NugetPrepareStep"
 
 steps:
+
+#
+# use the installer tool to setup the nuget exe path.
+#
+- task: NuGetToolInstaller@0
+  displayName: Nuget - install
 
 #
 # Restore nuget packages
@@ -51,6 +58,7 @@ steps:
   env: 
     projectFolder: $(projectFolder)
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    nugetConfigPath: $(projectFolder)/nuget.config
         
 #
 # Build stuff
@@ -84,20 +92,8 @@ steps:
     targetFolder: $(Build.ArtifactStagingDirectory)
 
 - task: NuGetCommand@2
-  displayName: 'Nuget - push - Prerelease'
-  condition: eq(variables['releasebuild'], 'false')
+  displayName: 'Nuget - push'
   inputs:
     command: push
-    nuGetFeedType: external
-    publishVstsFeed: Prerelease
-    publishFeedCredentials: NugetPrerelease
-
-- task: NuGetCommand@2
-  displayName: 'Nuget - push - Release'
-  condition: eq(variables['releasebuild'], 'true')
-  inputs:
-    command: push
-    nuGetFeedType: external
-    publishVstsFeed: Released
-    publishFeedCredentials: NugetReleased
+    publishVstsFeed: $(FEED_ID)
 
