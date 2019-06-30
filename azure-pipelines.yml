@@ -46,6 +46,7 @@ steps:
     filePath: $(solidCIPowershellFolder)/AzurePipelineScripts/solidci-nuget-prepare.ps1
   env: 
     projectFolder: $(projectFolder)
+    nugetConfigPath: $(projectFolder)/nuget.config
         
 #
 # Build stuff
