@@ -1,20 +1,37 @@
 #
 # setup feed authorization
 #
-if("$($env:FEED_PAT)" -ne "") {
-	Write-Host "Using basic authorization to access feeds - using PAT"
-	$feed_authorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($env:FEED_PAT)")))"
-} elseif($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
-	Write-Host "Using bearer authorization to access feeds - using system accesstoken"
-	$feed_authorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
+function GetFeedAuthorization() {
+    param([string] $uri)
+
+    $feedAuthorization=""
+
+    if("$feedAuthorization" -eq "") {
+        if($($env:SYSTEM_ACCESSTOKEN) -ne $null) {
+	        Write-Host "Using bearer authorization to access feeds - using system accesstoken"
+	        $feedAuthorization="Bearer $($env:SYSTEM_ACCESSTOKEN)"
+        }
+    }
+
+    if("$feedAuthorization" -eq "") {
+        if("$($env:FEED_PAT)" -ne "") {
+	         "$($env:FEED_PAT)".Split(";") | ForEach-Object {
+                $parts=$_.Split("=")
+                if($parts.Length -eq 2) {
+                    #Write-Host "Checking if $uri starts with $($parts[0])"
+                    if($uri.StartsWith($parts[0])) {
+                        Write-Host "Using basic authorization to access feed - using token from FEED_PAT($($parts[0]))"
+                   	    $feedAuthorization="Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($parts[1])")))"
+                    }
+                } else {
+                    throw "Malformed FEED_PAT part:$_"
+                }
+            }
+        }
+    }
+
+    return $feedAuthorization
 }
-if($feed_authorization -eq $null) {
-	Get-ChildItem Env:
-	throw "Cannot determine feed authorization. Please set the FEED_PAT environment variable"
-} 
-
-Set-variable -Name "FEED_AUTHORIZATION" -Value $feed_authorization -Scope Global 
-
 
 $requestCache=@{}
 function InvokeWebRequest()
@@ -31,8 +48,11 @@ function InvokeWebRequest()
     } else {
         Write-Host "Getting data from $uri ..."
         $headers = @{}
-        if("$FEED_AUTHORIZATION" -ne "") {
-            $headers["Authorization"] = $FEED_AUTHORIZATION
+        $feedAuthorization=GetFeedAuthorization $uri
+        if("$feedAuthorization" -ne "") {
+            $headers["Authorization"] = $feedAuthorization
+        } else {
+            Write-Host "Warning: No authorization header set when accessing data."
         }
         try { 
             $resp=Invoke-WebRequest -Uri $uri -Headers $headers -UseBasicParsing

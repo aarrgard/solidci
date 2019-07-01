@@ -10,7 +10,9 @@ if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
     $env:SYSTEM_ACCESSTOKEN = $cachedTokens[0].AccessToken
     $env:CSPROJ_1 = "Author:Andreas Arrgård"
 }
-$env:NUGETCONFIG="..\..\..\..\nuget.config"
+$env:SYSTEM_ACCESSTOKEN=""
+$env:FEED_PAT="https://pkgs.dev.azure.com/andreas0539/_packaging=zxrj3ahccr3io34zmsk6w24364exdxfmqurbtefow3hdduwvmida;http://test=sesdfsd"
+$env:nugetConfigPath="..\..\..\..\nuget.config"
 
 . "$PSScriptRoot\nuget.ps1"
 . "$PSScriptRoot\csproj.ps1"
