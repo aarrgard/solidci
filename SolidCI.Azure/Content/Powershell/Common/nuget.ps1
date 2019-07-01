@@ -188,7 +188,7 @@ function GetNugetPackageVersions()
                 $versions += $_.version
             }
 	    } catch {
-            if("$($_)" -ne "Status code not ok (Unauthorized). Should be one of 200 203") {
+            if("$($_)" -ne "Status code not ok (NotFound). Should be one of 200 203") {
     		    throw
             }
 	    }
