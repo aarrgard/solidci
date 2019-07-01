@@ -81,7 +81,7 @@ if("$($semVerPreRelease)" -eq "") {
 #
 # setup push variables
 #
-$feedUrl=(GetNugetSources))[$feedId]
+$feedUrl=(GetNugetSources)[$feedId]
 $feedType="internal"
 if(!$feedUrl.StartsWith("https://pkgs.dev.azure.com/")) {
 	$feedType="external"
