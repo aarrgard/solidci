@@ -47,17 +47,21 @@ function InvokeWebRequest()
         return $cachedResponse
     } else {
         Write-Host "Getting data from $uri ..."
-        $headers = @{}
-        $feedAuthorization=GetFeedAuthorization $uri
-        if("$feedAuthorization" -ne "") {
-            $headers["Authorization"] = $feedAuthorization
-        } else {
-            Write-Host "Warning: No authorization header set when accessing data."
-        }
         try { 
-            $resp=Invoke-WebRequest -Uri $uri -Headers $headers -UseBasicParsing
+            $resp=Invoke-WebRequest -Uri $uri -UseBasicParsing
         } catch {
-            $resp = $_.Exception.Response
+			if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host "Server requires authorization - resending with auth header."
+				try { 
+					$feedAuthorization=GetFeedAuthorization $uri
+					$headers = @{ "Authorization" =  $feedAuthorization}
+					$resp=Invoke-WebRequest -Uri $uri -Headers $headers -UseBasicParsing
+				} catch {
+					$resp = $_.Exception.Response
+				}
+			} else {
+	            $resp = $_.Exception.Response
+			}
         }
 
         #Write-Host "Got data:$($resp)"
