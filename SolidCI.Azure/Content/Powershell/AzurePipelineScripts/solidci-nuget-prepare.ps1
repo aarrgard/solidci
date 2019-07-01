@@ -6,7 +6,8 @@ $accountName=$env:ACCOUNTNAME
 $buildnumber=$env:BUILD_BUILDNUMBER
 $buildSourcesDirectory=$env:BUILD_SOURCESDIRECTORY
 $buildSourceBranchName=$env:BUILD_SOURCEBRANCHNAME
-$buildRepositoryName=$env:BUILD_REPOSITORY_NAME
+$buildRepositoryType="git"
+$buildRepositoryUrl=$env:BUILD_REPOSITORY_URI 
 $buildSourceVersion=$env:BUILD_SOURCEVERSION
 $buildRepositoryUri=$env:BUILD_REPOSITORY_URI
 $semVerPreRelease=$env:SEMVER_PRERELEASE
@@ -89,7 +90,8 @@ Write-Host "buildnumber:($buildnumber)"
 Write-Host "buildSourcesDirectory:($buildSourcesDirectory)"
 Write-Host "nugetPackage:($nugetPackage)"
 Write-Host "projectFolder:($projectFolder)"
-Write-Host "buildRepositoryName:($buildRepositoryName)"
+Write-Host "buildRepositoryType:($buildRepositoryType)"
+Write-Host "buildRepositoryUrl:($buildRepositoryUrl)"
 Write-Host "buildSourceBranchName:($buildSourceBranchName)"
 Write-Host "buildSourceVersion:($buildSourceVersion)"
 Write-Host "feedPrerelease:($feedPrerelease)"
@@ -149,7 +151,8 @@ $csProjFiles | ForEach-Object {
     $metadataFile="$($csprojFile.Directory.FullName)\BuildMetadata.cs"
     Write-Host "Creating file $metadataFile"
     "[assembly: System.Reflection.AssemblyMetadata(""NugetVersion"", ""$nextNugetVersionNumber"")]" | Out-File -FilePath $metadataFile
-    "[assembly: System.Reflection.AssemblyMetadata(""RepositoryName"", ""$buildRepositoryName"")]" | Out-File -FilePath $metadataFile -Append
+    "[assembly: System.Reflection.AssemblyMetadata(""RepositoryType"", ""$buildRepositoryType"")]" | Out-File -FilePath $metadataFile -Append
+    "[assembly: System.Reflection.AssemblyMetadata(""RepositoryUrl"", ""$buildRepositoryUrl"")]" | Out-File -FilePath $metadataFile -Append
     "[assembly: System.Reflection.AssemblyMetadata(""SourceBranchName"", ""$buildSourceBranchName"")]" | Out-File -FilePath $metadataFile -Append
     "[assembly: System.Reflection.AssemblyMetadata(""SourceVersion"", ""$buildSourceVersion"")]" | Out-File -FilePath $metadataFile -Append
     "[assembly: System.Reflection.AssemblyMetadata(""VstsBuildNumber"", ""$buildnumber"")]" | Out-File -FilePath $metadataFile -Append
@@ -171,5 +174,7 @@ $csProjFiles | ForEach-Object {
     $csprojProps["Version"] = $nextNugetVersionNumber
     $csprojProps["AssemblyVersion"] = $nextVersionNumber
     $csprojProps["FileVersion"] = $nextVersionNumber
+    $csprojProps["RepositoryType"] = $buildRepositoryType
+    $csprojProps["RepositoryUrl"] = $buildRepositoryUrl
     WriteProjectProperties $csprojFile $csprojProps
 }
