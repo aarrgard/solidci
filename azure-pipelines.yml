@@ -84,6 +84,6 @@ steps:
   inputs:
     command: push
     nuGetFeedType: $(FEED_TYPE)
-    vstsFeed: $(FEED_ID)
+    publishFeedCredentials: $(FEED_ID)
     publishVstsFeed: $(FEED_ID)
 
