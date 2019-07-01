@@ -66,7 +66,7 @@ if($accountName -eq $null) {
 }
 
 #
-# determine if this is a release
+# determine if this is a release - build
 #
 if("$($semVerPreRelease)" -eq "") {
     $semVerPreRelease = "build"
@@ -77,8 +77,18 @@ if("$($semVerPreRelease)" -eq "") {
 } else {
 	$feedId = $feedReleased
 }
+
+#
+# setup push variables
+#
+$feedUrl=(GetNugetSources))[$feedId]
+$feedType="internal"
+if(!$feedUrl.StartsWith("https://pkgs.dev.azure.com/")) {
+	$feedType="external"
+}
 Write-Host "##vso[task.setvariable variable=FEED_ID]$($feedId)"
-Write-Host "Will publish to feed $($feedId)"
+Write-Host "##vso[task.setvariable variable=FEED_TYPE]$($feedType)"
+Write-Host "Will publish to feed $feedId - $feedType - $feedUrl"
 
 
 #
