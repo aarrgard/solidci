@@ -83,7 +83,7 @@ steps:
   displayName: 'Nuget - push'
   inputs:
     command: push
-    nuGetFeedType: external
+    nuGetFeedType: internal
     nugetConfigPath: $(projectFolder)/nuget.config
     vstsFeed: $(FEED_ID)
     publishVstsFeed: $(FEED_ID)
