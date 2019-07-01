@@ -92,8 +92,18 @@ steps:
     targetFolder: $(Build.ArtifactStagingDirectory)
 
 - task: NuGetCommand@2
-  displayName: 'Nuget - push'
+  displayName: 'Nuget - push - internal'
+  condition: eq(variables['FEED_TYPE'], 'internal')
   inputs:
     command: push
+    nuGetFeedType: internal
     publishVstsFeed: $(FEED_ID)
+
+- task: NuGetCommand@2
+  displayName: 'Nuget - push - external - nuget.org'
+  condition: eq(variables['FEED_ID'], 'nuget.org')
+  inputs:
+    command: push
+    nuGetFeedType: external
+    publishFeedCredentials: nuget.org
 
