@@ -1,6 +1,14 @@
-. "$PSScriptRoot\..\Common\nuget.ps1"
-. "$PSScriptRoot\..\Common\csproj.ps1"
-. "$PSScriptRoot\..\Common\replace.ps1"
+function SourceFile {
+	param([System.IO.FileInfo] $file)
+	Write-Host "Sourcing file $($file.FullName)"
+    if(-not $file.Exists) {
+        throw "File does not exist."
+    }
+    . "$($file.FullName)"
+}
+SourceFile "$PSScriptRoot\..\Common\nuget.ps1"
+SourceFile "$PSScriptRoot\..\Common\csproj.ps1"
+SourceFile "$PSScriptRoot\..\Common\replace.ps1"
 
 $accountName=$env:ACCOUNTNAME
 $buildnumber=$env:BUILD_BUILDNUMBER
