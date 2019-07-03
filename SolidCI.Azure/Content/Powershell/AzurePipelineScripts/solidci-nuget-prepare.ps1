@@ -1,11 +1,12 @@
-function SourceFile {
-	param([System.IO.FileInfo] $file)
-	Write-Host "Sourcing file $($file.FullName)"
-    if(-not $file.Exists) {
-        throw "File does not exist."
+    function SourceFile {
+	    param([string] $file)
+        $file=$file.Replace('\',[System.IO.Path]::DirectorySeparatorChar).Replace('/',[System.IO.Path]::DirectorySeparatorChar)
+	    Write-Host "Sourcing file $($file)"
+        if(-not [System.IO.File]::Exists($file)) {
+            throw "File does not exist."
+        }
+        . "$($file)"
     }
-    . "$($file.FullName)"
-}
 SourceFile "$PSScriptRoot\..\Common\nuget.ps1"
 SourceFile "$PSScriptRoot\..\Common\csproj.ps1"
 SourceFile "$PSScriptRoot\..\Common\replace.ps1"
