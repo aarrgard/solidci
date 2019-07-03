@@ -59,12 +59,15 @@ function WriteProjectProperties() {
 	$propertyGroup = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup"
 
     $props.Keys | ForEach-Object {
+        if($_.StartsWith("#")) {
+            return
+        }
 	    $node = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup/$_"
         if(-not $node) {
             $node = $scProjXml.CreateElement($_)
             $node.InnerText = $props[$_]
             $dummy = $propertyGroup.Node.AppendChild($node)
-        } else {
+        } elseif($Node.GetType().FullName -eq "Microsoft.PowerShell.Commands.SelectXmlInfo") {
             $node = $node.Node
         }
         $node.InnerText = $props[$_]

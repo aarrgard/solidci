@@ -12,18 +12,18 @@ if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
 }
 $env:SYSTEM_ACCESSTOKEN=""
 $env:FEED_PAT="https://pkgs.dev.azure.com/andreas0539/_packaging=zxrj3ahccr3io34zmsk6w24364exdxfmqurbtefow3hdduwvmida;http://test=sesdfsd"
-$env:nugetConfigPath="..\..\..\..\nuget.config"
+$env:nugetConfigPath="$PSScriptRoot\..\nuget.config"
 
-. "$PSScriptRoot\nuget.ps1"
-. "$PSScriptRoot\csproj.ps1"
-. "$PSScriptRoot\replace.ps1"
-. "$PSScriptRoot\assert.ps1"
+. "$PSScriptRoot\..\SolidCI.Azure\Content\Powershell\Common\nuget.ps1"
+. "$PSScriptRoot\..\SolidCI.Azure\Content\Powershell\Common\csproj.ps1"
+. "$PSScriptRoot\..\SolidCI.Azure\Content\Powershell\Common\replace.ps1"
+. "$PSScriptRoot\..\SolidCI.Azure\Content\Powershell\Common\assert.ps1"
 
 #GetNugetSources
 #$res=GetNugetPackageVersions2 "nuget.org" "Newtonsoft.Json"
 #GetNugetBuildVersion nuget.org Newtonsoft.Json 1.0.0 build
 #GetNugetBuildVersion Prerelease SolidCI.Azure 1.0.0 build
-GetNugetBuildVersion Prerelease SolidProxy.XUnitTests 1.0.0 build
+#GetNugetBuildVersion Prerelease SolidProxy.XUnitTests 1.0.0 build
 
 #
 # test package versions
@@ -39,17 +39,15 @@ AssertAreEqual (GetVersionFromVersionRange "feature-234-build1") (@(0,0,234,1))
 AssertAreEqual (GetVersionFromVersionRange "feature-235.build23") (@(0,0,235,23))
 AssertAreEqual (GetVersionFromVersionRange "xxx") $null
 
-throw "dfsdf"
-
 #
 # test csproj file support
 #
-$csProjFiles=FindCsprojFiles "$PSScriptRoot\..\..\.."
+$csProjFiles=FindCsprojFiles "$PSScriptRoot\.."
 AssertAreEqual 1 $csProjFiles.Count
-AssertAreEqual "SolidCI.Azure" $(GetCsprojPackageName $csProjFiles[0])
+AssertAreEqual "project" $(GetCsprojPackageName $csProjFiles[0])
 
 $csprojProps = ReadProjectProperties $csProjFiles[0]
-AssertAreEqual 2 $csprojProps.Count
+AssertAreEqual 8 $csprojProps.Count
 $csprojProps["Version"] = "1.0.2"
 WriteProjectProperties $csProjFiles[0] $csprojProps
 
@@ -58,7 +56,7 @@ WriteProjectProperties $csProjFiles[0] $csprojProps
 #
 #$versions=GetNugetPackageVersions "AndreasPrerelease" "SolidCI.Azure"
 $versions=GetNugetPackageVersions "nuget.org" "Newtonsoft.Json"
-AssertAreEqual 24 $versions.Length
+AssertAreEqual 69 $versions.Length
 $released=IsNugetReleased "nuget.org" "Newtonsoft.Json" "12.0.2-beta2"
 AssertAreEqual $true $released
 $released=IsNugetReleased "nuget.org" "Newtonsoft.Json" "12.0.2"
@@ -66,6 +64,6 @@ AssertAreEqual $true $released
 $released=IsNugetReleased "nuget.org" "Newtonsoft.Json" "12.0.0"
 AssertAreEqual $false $released
 $buildVersion=GetNugetBuildVersion "nuget.org" "RestSharp" "106.2.0" "alpha"
-AssertAreEqual "" $buildVersion
+AssertAreEqual "106.2.0-alpha061" $buildVersion
 
 

@@ -11,6 +11,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9B0B2322-6A69-49FB-9EC2-1D0605CB6ABF}"
+	ProjectSection(SolutionItems) = preProject
+		SolidCI.Azure\Content\Powershell\Common\tests.ps1 = SolidCI.Azure\Content\Powershell\Common\tests.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project1", "Project1", "{5A61C13F-64E2-48A4-8946-180FB7B84DF8}"
+	ProjectSection(SolutionItems) = preProject
+		project.csproj = project.csproj
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +34,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5A61C13F-64E2-48A4-8946-180FB7B84DF8} = {9B0B2322-6A69-49FB-9EC2-1D0605CB6ABF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BDAABD91-4DB2-46EC-98FB-E8828C01F44B}
