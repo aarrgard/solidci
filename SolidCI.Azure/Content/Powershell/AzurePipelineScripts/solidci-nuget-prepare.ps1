@@ -1,15 +1,15 @@
-    function SourceFile {
-	    param([string] $file)
-        $file=$file.Replace('\',[System.IO.Path]::DirectorySeparatorChar).Replace('/',[System.IO.Path]::DirectorySeparatorChar)
-	    Write-Host "Sourcing file $($file)"
-        if(-not [System.IO.File]::Exists($file)) {
-            throw "File does not exist."
-        }
-        . "$($file)"
+function SourceFile {
+	param([string] $file)
+    $file=$file.Replace('\',[System.IO.Path]::DirectorySeparatorChar).Replace('/',[System.IO.Path]::DirectorySeparatorChar)
+	Write-Host "Sourcing file $($file)"
+    if(-not [System.IO.File]::Exists($file)) {
+        throw "File does not exist."
     }
-SourceFile "$PSScriptRoot\..\Common\nuget.ps1"
-SourceFile "$PSScriptRoot\..\Common\csproj.ps1"
-SourceFile "$PSScriptRoot\..\Common\replace.ps1"
+    return "$($file)"
+}
+. (SourceFile "$PSScriptRoot\..\Common\nuget.ps1")
+. (SourceFile "$PSScriptRoot\..\Common\csproj.ps1")
+. (SourceFile "$PSScriptRoot\..\Common\replace.ps1")
 
 $accountName=$env:ACCOUNTNAME
 $buildnumber=$env:BUILD_BUILDNUMBER
