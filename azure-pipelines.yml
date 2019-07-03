@@ -47,6 +47,7 @@ steps:
   env: 
     projectFolder: $(projectFolder)
     nugetConfigPath: $(projectFolder)/nuget.config
+    CSPROJ_EXCLUDE: /Project1/project.csproj
         
 #
 # Build stuff

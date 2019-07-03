@@ -7,7 +7,7 @@ function FindCsprojFiles() {
 	if($csProjFiles -eq $null) {
 		$csProjFiles = New-Object System.Collections.ArrayList
 	}
-
+    #Write-Host $baseDir.FullName
     $csprojFile=$null
     $baseDir.GetFiles() | ForEach-Object {
         if($_.Name.ToLower().EndsWith(".csproj")) {
@@ -15,14 +15,41 @@ function FindCsprojFiles() {
         }
     }
     if("$csprojFile" -ne "") {
-        $dummy=$csProjFiles.Add($csprojFile)
-        return $csProjFiles
+		if(-not (ExcludeCsprojFile $csprojFile)) {
+			$dummy=$csProjFiles.Add($csprojFile)
+			return $csProjFiles
+		}
     }
 
     $baseDir.GetDirectories() | ForEach-Object {
         $dummy=FindCsprojFiles $_ $csProjFiles
     }
     return $csProjFiles
+}
+
+
+#
+# returns true if supplied file should be excluded.
+#
+function ExcludeCsprojFile {
+    param([System.IO.FileInfo]$csProjFile)
+	$excludeFiles="$($env:CSPROJ_EXCLUDE)"
+	if("$excludeFiles" -eq "") {
+		return $false
+	}
+    $retval=$false
+    $excludeFiles.Split(',') | ForEach-Object {
+	    if("$_" -eq "") {
+		    return
+	    }
+        $fileSuffix = $_.Replace('\', [System.IO.Path]::DirectorySeparatorChar).Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+        #Write-Host $csProjFile.FullName $fileSuffix ($csProjFile.FullName.EndsWith($fileSuffix))
+        if($csProjFile.FullName.EndsWith($fileSuffix)) {
+            $retval = $true
+        }
+    }
+    Write-Host $retval
+	return $retval
 }
 
 #
@@ -38,7 +65,11 @@ function GetCsprojPackageName() {
 #
 function ReadProjectProperties() {
     param([System.IO.FileInfo]$csProjFile)
+    if(-not $csProjFile.Exists) {
+        throw "File not found $($csProjFile.FullName)"
+    }
 	[xml]$scProjXml=Get-Content $csProjFile.FullName
+    Write-Host $scProjXml
     $props = @{}
 	$propertyGroup = Select-Xml -Xml $scProjXml -XPath "/Project/PropertyGroup" | ForEach-Object {
         $_.Node.ChildNodes | ForEach-Object {

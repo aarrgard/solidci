@@ -1,3 +1,4 @@
+$env:CSPROJ_EXCLUDE=""
 if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
         
     $subscriptionId = "c8db6045-f06a-4d9a-99c4-45af85f0fe8a"
@@ -43,13 +44,17 @@ AssertAreEqual (GetVersionFromVersionRange "xxx") $null
 # test csproj file support
 #
 $csProjFiles=FindCsprojFiles "$PSScriptRoot\.."
-AssertAreEqual 1 $csProjFiles.Count
-AssertAreEqual "project" $(GetCsprojPackageName $csProjFiles[0])
+AssertAreEqual 2 $csProjFiles.Count
+AssertAreEqual "project" $(GetCsprojPackageName $csProjFiles[1])
 
-$csprojProps = ReadProjectProperties $csProjFiles[0]
+$csprojProps = ReadProjectProperties $csProjFiles[1]
 AssertAreEqual 8 $csprojProps.Count
 $csprojProps["Version"] = "1.0.2"
-WriteProjectProperties $csProjFiles[0] $csprojProps
+WriteProjectProperties $csProjFiles[1] $csprojProps
+
+$env:CSPROJ_EXCLUDE="sdasfd,/project.csproj"
+AssertAreEqual 1 (FindCsprojFiles "$PSScriptRoot\..").Count
+$env:CSPROJ_EXCLUDE=""
 
 #
 # nuget
