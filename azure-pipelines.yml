@@ -22,8 +22,11 @@ steps:
 #
 # use the installer tool to setup the nuget exe path.
 #
-- task: NuGetToolInstaller@0
+- task: NuGetToolInstaller@1
   displayName: Nuget - install
+
+- task: NuGetAuthenticate@0
+  displayName: Nuget - Authenticate
 
 #
 # Restore nuget packages
