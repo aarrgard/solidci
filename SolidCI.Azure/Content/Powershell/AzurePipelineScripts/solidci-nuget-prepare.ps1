@@ -43,13 +43,10 @@ if("$($env:TF_BUILD)" -ne "True") {
 
 
     if("$($env:SYSTEM_ACCESSTOKEN)" -eq "") {
-        
-
-
         $subscriptionId = "c8db6045-f06a-4d9a-99c4-45af85f0fe8a"
         #$rmAccount = Add-AzureRmAccount -SubscriptionId $subscriptionId
-        $tenantId = (Get-AzureRmSubscription -SubscriptionId $subscriptionId).TenantId
-        $tokenCache = (Get-AzureRmContext).TokenCache
+        $tenantId = (Get-AzSubscription -SubscriptionId $subscriptionId).TenantId
+        $tokenCache = (Get-AzContext).TokenCache
         $cachedTokens = $tokenCache.ReadItems() `
             | where { $_.TenantId -eq $tenantId } `
             | Sort-Object -Property ExpiresOn -Descending
