@@ -227,17 +227,19 @@ function GetNugetPackageMetaData() {
     param([string[]] $sourceName, [string] $name)
     $registrationBaseUrl=GetServiceUrl $sourceName $("RegistrationsBaseUrl/3.6.0", "RegistrationsBaseUrl/3.4.0", "RegistrationsBaseUrl/3.0.0-rc", "RegistrationsBaseUrl/3.0.0-beta", "RegistrationsBaseUrl")
     $res = InvokeWebRequest "$registrationBaseUrl$($name.ToLowerInvariant())/index.json" 
-    $res.items | ForEach-Object {
+    @($res.items) | ForEach {
         $pageUrl = $_.'@id'
-        if($pageUrl) 
+        if($pageUrl.EndsWith(".json")) 
         {
             $pageRes = InvokeWebRequest $pageUrl
         } else 
         {
-            $pageRes = $res
+            $pageRes = $_
         }
-        $pageRes.items | ForEach-Object {
-            $catalogEntry=$_.catalogEntry
+        $items=@($pageRes.Items)
+        #Write-Host $items.Count
+        foreach ($item in $items) {
+            $catalogEntry=$item.catalogEntry
             @{
                 id=$catalogEntry.id;
                 version=$catalogEntry.version;
