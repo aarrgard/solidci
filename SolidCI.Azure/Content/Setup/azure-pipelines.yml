@@ -14,7 +14,6 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 variables:
-  group: Global settings
   buildConfiguration: 'Release'
   projectFolder: '$(Build.SourcesDirectory)'
   solidCIPowershellFolder: $(projectFolder)
